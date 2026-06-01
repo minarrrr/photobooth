@@ -26,7 +26,7 @@ let previewReturnHitCtrl = { x: 0.321, y: 0.155, w: 0.032, h: 0.06 };
 let selectRetakeHitCtrl = { x: 0.572, y: 0.876, w: 0.094, h: 0.066 };
 let selectOkHitCtrl = { x: 0.698, y: 0.88, w: 0.044, h: 0.076 };
 
-let resultHomeHitCtrl = { x: 0.238, y: 0.1, w: 0.034, h: 0.06 };
+let resultHomeHitCtrl = { x: 0.208, y: 0.1, w: 0.034, h: 0.06 };
 
 let snackIconHitCtrls = [
   { x: 0.42, y: 0.536, w: 0.088, h: 0.12 },
@@ -36,14 +36,14 @@ let snackIconHitCtrls = [
 ];
 
 let resultFrameCtrl = {
-  x: 0.37,
+  x: 0.34,
   y: 0.5,
   maxW: 0.45,
   maxH: 0.88
 };
 
 let resultHomeCtrl = {
-  x: 0.24,
+ x: 0.21,
   y: 0.1,
   maxW: 0.14,
   maxH: 0.08
