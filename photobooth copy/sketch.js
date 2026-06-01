@@ -2,6 +2,14 @@ let buttonSound;
 
 let resultSound;
 
+let timelapseClips = [];
+let currentTimelapseFrames = [];
+let lastTimelapseFrameAt = 0;
+let timelapseFrameEveryMs = 450;
+let resultTimelapseFrameIndex = 0;
+let resultTimelapseLastMs = 0;
+let resultTimelapseSpeedMs = 140;
+
 let hoverSound;
 let lastHoveredButton = "";
 
@@ -785,9 +793,10 @@ let camY = height / 2 - camH / 2;
   rect(width / 2, height / 2, camW, camH);
 
   if (isCapturing) {
-    updateCountdown();
-    drawCountdownText();
-  }
+  recordTimelapseFrame();
+  updateCountdown();
+  drawCountdownText();
+}
 }
 
 function startPhotoSequence() {
@@ -799,6 +808,11 @@ function startPhotoSequence() {
   snapCount = 0;
   countdownText = "";
   finalFrameImg = null;
+  timelapseClips = [];
+currentTimelapseFrames = [];
+lastTimelapseFrameAt = 0;
+resultTimelapseFrameIndex = 0;
+resultTimelapseLastMs = 0;
 
   finalPhotoUrl = "";
   if (qrBox) qrBox.html("");
@@ -883,6 +897,20 @@ function drawCountdownText() {
   }
 }
 
+function recordTimelapseFrame() {
+  if (millis() - lastTimelapseFrameAt < timelapseFrameEveryMs) return;
+
+  let slotRatio = 510 / 341;
+  let frameW = 180;
+  let frameH = frameW / slotRatio;
+  let g = createGraphics(frameW, frameH);
+
+  drawMirroredVideoCoverToGraphics(g, cam, 0, 0, frameW, frameH);
+
+  currentTimelapseFrames.push(g.get());
+  lastTimelapseFrameAt = millis();
+}
+
 function takePhoto() {
   let slotRatio = 510 / 341;
 
@@ -894,6 +922,8 @@ function takePhoto() {
   drawMirroredVideoCoverToGraphics(photo, cam, 0, 0, photoW, photoH);
 
   freezePhoto = photo.get();
+  timelapseClips.push(currentTimelapseFrames.slice());
+currentTimelapseFrames = [];
   snappedPhotos.push(freezePhoto);
 
   flashAlpha = 255;
@@ -1254,13 +1284,7 @@ function drawResultScreen() {
       height * resultFrameCtrl.maxH
     );
 
-    image(
-      finalFrameImg,
-      width * resultFrameCtrl.x,
-      height * resultFrameCtrl.y,
-      frameBox.w,
-      frameBox.h
-    );
+    drawResultTimelapse(frameBox);
   }
 
   resultHomeBtn = drawAnimatedButton(homeBtnImg, resultHomeCtrl, resultHomeHitCtrl);
@@ -1287,6 +1311,48 @@ if (qrBox && finalPhotoUrl) {
   qrBox.size(resultQrCtrl.size, resultQrCtrl.size);
 }
   
+}
+
+function drawResultTimelapse(frameBox) {
+  if (millis() - resultTimelapseLastMs > resultTimelapseSpeedMs) {
+    resultTimelapseFrameIndex++;
+    resultTimelapseLastMs = millis();
+  }
+
+  let frameX = width * resultFrameCtrl.x - frameBox.w / 2;
+  let frameY = height * resultFrameCtrl.y - frameBox.h / 2;
+  let holes = getFrameHoles(frameBox.w, frameBox.h);
+
+  for (let i = 0; i < 4; i++) {
+    let photoIndex = selectedPhotos[i];
+    let clip = timelapseClips[photoIndex];
+    let hole = holes[i];
+    let imgToDraw = null;
+
+    if (clip && clip.length > 0) {
+      imgToDraw = clip[resultTimelapseFrameIndex % clip.length];
+    } else if (snappedPhotos[photoIndex]) {
+      imgToDraw = snappedPhotos[photoIndex];
+    }
+
+    if (imgToDraw) {
+      image(
+        imgToDraw,
+        frameX + hole.x + hole.w / 2,
+        frameY + hole.y + hole.h / 2,
+        hole.w,
+        hole.h
+      );
+    }
+  }
+
+  image(
+    selectedFrame,
+    width * resultFrameCtrl.x,
+    height * resultFrameCtrl.y,
+    frameBox.w,
+    frameBox.h
+  );
 }
 
 function getFrameHoles(frameW, frameH) {
