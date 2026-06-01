@@ -10,6 +10,9 @@ let resultTimelapseFrameIndex = 0;
 let resultTimelapseLastMs = 0;
 let resultTimelapseSpeedMs = 160;
 
+const RESULT_DURATION_MS = 180000;
+let resultStartedAtMs = 0;
+
 let hoverSound;
 let lastHoveredButton = "";
 
@@ -625,24 +628,40 @@ function mousePressed() {
   if (isInside(mouseX, mouseY, okBtn)) {
   if (selectedPhotos.length === 4) {
     buildFinalFrame();
-    screen = "result";
-    playResultSound();
-    uploadFinalPhoto();
+screen = "result";
+resultStartedAtMs = millis();
+playResultSound();
+uploadFinalPhoto();
   }
   return;
 }
 }
   else if (screen === "result") {
  if (isInside(mouseX, mouseY, resultHomeBtn)) {
-  editTarget = "startButton";
-  finalFrameImg = null;
-  finalFrameGraphics = null;
-  selectedPhotos = [];
-  snappedPhotos = [];
-  screen = "start";
+  resetToStartScreen();
   return;
 }
 }
+}
+
+function resetToStartScreen() {
+  editTarget = "startButton";
+  finalFrameImg = null;
+  finalFrameGraphics = null;
+  finalPhotoUrl = "";
+  uploadError = "";
+  selectedPhotos = [];
+  snappedPhotos = [];
+  timelapseClips = [];
+  currentTimelapseFrames = [];
+  resultStartedAtMs = 0;
+
+  if (qrBox) {
+    qrBox.html("");
+    qrBox.hide();
+  }
+
+  screen = "start";
 }
 
 function fitImage(img, maxW, maxH) {
@@ -1277,6 +1296,17 @@ finalFrameImg = g.get();
 function drawResultScreen() {
   background(255);
 
+    if (resultStartedAtMs === 0) {
+    resultStartedAtMs = millis();
+  }
+
+  let remainingMs = RESULT_DURATION_MS - (millis() - resultStartedAtMs);
+
+  if (remainingMs <= 0) {
+    resetToStartScreen();
+    return;
+  }
+
   if (finalFrameImg) {
     let frameBox = fitImage(
       finalFrameImg,
@@ -1310,7 +1340,25 @@ if (qrBox && finalPhotoUrl) {
   );
   qrBox.size(resultQrCtrl.size, resultQrCtrl.size);
 }
-  
+drawResultTimer(remainingMs);  
+}
+function drawResultTimer(remainingMs) {
+  let totalSeconds = max(0, ceil(remainingMs / 1000));
+  let minutes = floor(totalSeconds / 60);
+  let seconds = totalSeconds % 60;
+  let timerText = minutes + ":" + nf(seconds, 2);
+
+  push();
+  rectMode(CENTER);
+  textAlign(CENTER, CENTER);
+  textStyle(BOLD);
+  textSize(24);
+  noStroke();
+  fill(255, 235);
+  rect(width - 92, 46, 120, 48, 8);
+  fill(0);
+  text(timerText, width - 92, 46);
+  pop();
 }
 
 function drawResultTimelapse(frameBox) {
