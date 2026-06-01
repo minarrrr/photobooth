@@ -5,10 +5,10 @@ let resultSound;
 let timelapseClips = [];
 let currentTimelapseFrames = [];
 let lastTimelapseFrameAt = 0;
-let timelapseFrameEveryMs = 450;
+let timelapseFrameEveryMs = 250;
 let resultTimelapseFrameIndex = 0;
 let resultTimelapseLastMs = 0;
-let resultTimelapseSpeedMs = 140;
+let resultTimelapseSpeedMs = 160;
 
 let hoverSound;
 let lastHoveredButton = "";
