@@ -258,6 +258,7 @@ okBtnImg = loadImage("assets/ui/btn_ok.png");
 }
 
 function setup() {
+  pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
   imageMode(CENTER);
 
