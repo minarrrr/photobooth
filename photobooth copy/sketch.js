@@ -1447,7 +1447,7 @@ if (i === 1) {
   push();
   noFill();
   stroke(0);
-  strokeWeight(1.5);
+  strokeWeight(0.5);
   rectMode(CENTER);
   rect(x, y, imgW, imgH);
   pop();
