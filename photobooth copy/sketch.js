@@ -261,6 +261,8 @@ function setup() {
   pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
   frameRate(30);
+  drawingContext.imageSmoothingEnabled = true;
+  drawingContext.imageSmoothingQuality = "high";
   imageMode(CENTER);
 
   let loadingEl = document.getElementById("p5_loading");
