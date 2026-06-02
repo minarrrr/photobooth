@@ -278,20 +278,28 @@ function setup() {
 qrBox.style("position", "absolute");
 qrBox.hide();
   
-  resultSound = loadSound("assets/audio/result.mp3", function() {
-  resultSound.setVolume(1.0);
+resultSound = loadSound("assets/audio/result.mp3", function() {
+  resultSound.setVolume(2.0);
 });
+
 
 hoverSound = loadSound("assets/audio/hover.mp3", function() {
   hoverSound.playMode("restart");
+  hoverSound.setVolume(2.0);
 });
 
 buttonSound = loadSound("assets/audio/buttonsound.mp3", function() {
   buttonSound.playMode("restart");
+  buttonSound.setVolume(2.0);
 });
 
-countdownSound = loadSound("assets/audio/countdown.mp3");
-shutterSound = loadSound("assets/audio/shutter.mp3");
+countdownSound = loadSound("assets/audio/countdown.mp3", function() {
+  countdownSound.setVolume(2.0);
+});
+
+shutterSound = loadSound("assets/audio/shutter.mp3", function() {
+  shutterSound.setVolume(2.0);
+});
 }
 
 function draw() {
