@@ -1,4 +1,5 @@
 let buttonSound;
+let showResultEditConsole = false;
 
 let resultSound;
 
@@ -21,12 +22,12 @@ let hitboxEditTarget = "startBtnHit";
 let startBtnHitCtrl = { x: 0.501, y: 0.856, w: 0.109, h: 0.0785 };
 
 let previewCaptureHitCtrl = { x: 0.622, y: 0.538, w: 0.102, h: 0.070 };
-let previewReturnHitCtrl = { x: 0.321, y: 0.155, w: 0.032, h: 0.06 };
+let previewReturnHitCtrl = { x: 0.300, y: 0.155, w: 0.032, h: 0.06 };
 
 let selectRetakeHitCtrl = { x: 0.572, y: 0.876, w: 0.094, h: 0.066 };
 let selectOkHitCtrl = { x: 0.698, y: 0.88, w: 0.044, h: 0.076 };
 
-let resultHomeHitCtrl = { x: 0.104, y: 0.066, w: 0.034, h: 0.06 };
+let resultHomeHitCtrl = { x: 0.104, y: 0.092, w: 0.034, h: 0.06 };
 
 let snackIconHitCtrls = [
   { x: 0.42, y: 0.536, w: 0.088, h: 0.12 },
@@ -43,16 +44,16 @@ let resultFrameCtrl = {
 };
 
 let resultHomeCtrl = {
-  x: 0.104,
-  y: 0.066,
+ x: 0.104,
+  y: 0.092,
   maxW: 0.14,
   maxH: 0.08
 };
 
 let resultQrCtrl = {
-  x: 0.636,
+  x: 0.662,
   y: 0.474,
-  size: 390
+  size: 365
 };
 
 let qrBox;
@@ -109,7 +110,7 @@ let previewCaptureCtrl = {
 };
 
 let previewReturnCtrl = {
-  x: 0.323,
+  x: 0.300,
   y: 0.155,
   maxW: 0.15,
   maxH: 0.07
@@ -1402,13 +1403,28 @@ function drawResultTimelapse(frameBox) {
     }
   }
 
-  image(
+    image(
     selectedFrame,
     width * resultFrameCtrl.x,
     height * resultFrameCtrl.y,
     frameBox.w,
     frameBox.h
   );
+
+  if (selectedFrame === frame3) {
+    push();
+    noFill();
+    stroke(60);
+    strokeWeight(0.5);
+    rectMode(CENTER);
+    rect(
+      width * resultFrameCtrl.x,
+      height * resultFrameCtrl.y,
+      frameBox.w - 1,
+      frameBox.h - 1
+    );
+    pop();
+  }
 }
 
 function getFrameHoles(frameW, frameH) {
@@ -1658,7 +1674,7 @@ makeQrCode();
 }
 
 function drawResultEditOverlay() {
-  if (screen !== "result") return;
+  if (screen !== "result" || !showResultEditConsole) return;
 
   let target;
 
