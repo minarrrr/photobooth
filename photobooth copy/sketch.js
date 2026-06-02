@@ -232,10 +232,10 @@ function loadAssets() {
   startTitleImg = loadImage("assets/titles/start.png");
 selectTitleImg = loadImage("assets/titles/select.png");
   
-reelImgs.push(loadImage("assets/reel/reel1.jpg"));
-reelImgs.push(loadImage("assets/reel/reel2.jpg"));
-reelImgs.push(loadImage("assets/reel/reel3.jpg"));
-reelImgs.push(loadImage("assets/reel/reel4.jpg"));
+reelImgs.push(loadImage("assets/reel/reel1.png"));
+reelImgs.push(loadImage("assets/reel/reel2.png"));
+reelImgs.push(loadImage("assets/reel/reel3.png"));
+reelImgs.push(loadImage("assets/reel/reel4.png"));
   
   returnBtnImg = loadImage("assets/ui/btn_return.png");
   
