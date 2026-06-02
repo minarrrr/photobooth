@@ -1446,10 +1446,10 @@ function drawStartReel() {
 if (i === 1) {
   push();
   noFill();
-  stroke(0);
+  stroke(60);
   strokeWeight(0.5);
   rectMode(CENTER);
-  rect(x, y, imgW, imgH);
+  rect(x, y, imgW - 1, imgH - 1);
   pop();
 }
   }
