@@ -232,14 +232,10 @@ function loadAssets() {
   startTitleImg = loadImage("assets/titles/start.png");
 selectTitleImg = loadImage("assets/titles/select.png");
   
-reelImgs.push(loadImage("assets/reel/reel1.png"));
-reelImgs.push(loadImage("assets/reel/reel2.png"));
-reelImgs.push(loadImage("assets/reel/reel3.png"));
-reelImgs.push(loadImage("assets/reel/reel4.png"));
-reelImgs.push(loadImage("assets/reel/reel5.png"));
-reelImgs.push(loadImage("assets/reel/reel6.png"));
-reelImgs.push(loadImage("assets/reel/reel8.png"));
-reelImgs.push(loadImage("assets/reel/reel7.png"));
+reelImgs.push(loadImage("assets/reel/reel1.jpg"));
+reelImgs.push(loadImage("assets/reel/reel2.jpg"));
+reelImgs.push(loadImage("assets/reel/reel3.jpg"));
+reelImgs.push(loadImage("assets/reel/reel4.jpg"));
   
   returnBtnImg = loadImage("assets/ui/btn_return.png");
   
@@ -1432,25 +1428,6 @@ function getFrameHoles(frameW, frameH) {
 }
 
 function drawStartReel() {
-  let cycleMs = startReelCtrl.holdMs + startReelCtrl.fadeMs;
-  let cyclePos = millis() % (cycleMs * 2);
-
-  let groupA = cyclePos < cycleMs ? 0 : 1;
-  let groupB = groupA === 0 ? 1 : 0;
-
-  let localTime = cyclePos % cycleMs;
-  let fadeT = constrain((localTime - startReelCtrl.holdMs) / startReelCtrl.fadeMs, 0, 1);
-
-  // smoother fade
-  fadeT = fadeT * fadeT * (3 - 2 * fadeT);
-
-  drawReelGroup(groupA, 255 * (1 - fadeT));
-  drawReelGroup(groupB, 255 * fadeT);
-}
-
-function drawReelGroup(group, alphaValue) {
-  let startIndex = group * 4;
-
   let imgW = width * startReelCtrl.imgW;
   let gap = width * startReelCtrl.gap;
   let totalW = 4 * imgW + 3 * gap;
@@ -1458,23 +1435,12 @@ function drawReelGroup(group, alphaValue) {
   let y = height * startReelCtrl.y;
 
   for (let i = 0; i < 4; i++) {
-  let img = reelImgs[startIndex + i];
-  let imgH = imgW * (img.height / img.width);
-  let x = startX + i * (imgW + gap) + imgW / 2;
+    let img = reelImgs[i];
+    let imgH = imgW * (img.height / img.width);
+    let x = startX + i * (imgW + gap) + imgW / 2;
 
-  push();
-
-  tint(255, alphaValue);
-
-  drawingContext.shadowColor = "rgba(0,0,0,0.10)";
-  drawingContext.shadowBlur = 12;
-  drawingContext.shadowOffsetX = 0;
-  drawingContext.shadowOffsetY = 4;
-
-  image(img, x, y, imgW, imgH);
-
-  pop();
-}
+    image(img, x, y, imgW, imgH);
+  }
 }
 
 function drawSnackEditOverlay() {
