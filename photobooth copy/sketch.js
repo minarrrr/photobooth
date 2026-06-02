@@ -1442,6 +1442,16 @@ function drawStartReel() {
     let x = startX + i * (imgW + gap) + imgW / 2;
 
     image(img, x, y, imgW, imgH);
+
+if (i === 1) {
+  push();
+  noFill();
+  stroke(0);
+  strokeWeight(1.5);
+  rectMode(CENTER);
+  rect(x, y, imgW, imgH);
+  pop();
+}
   }
 }
 
