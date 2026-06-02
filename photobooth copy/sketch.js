@@ -260,6 +260,7 @@ okBtnImg = loadImage("assets/ui/btn_ok.png");
 function setup() {
   pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
+  frameRate(30);
   imageMode(CENTER);
 
   let loadingEl = document.getElementById("p5_loading");
@@ -268,7 +269,7 @@ function setup() {
   loadAssets();
 
   cam = createCapture(VIDEO);
-  cam.size(640, 480);
+  cam.size(480, 360);
   cam.hide();
   
   qrBox = createDiv("");
