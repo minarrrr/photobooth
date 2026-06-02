@@ -134,7 +134,7 @@ let snackIconCtrls = [
 let startReelCtrl = {
   x: 0.500,
   y: 0.560,
-  imgW: 0.065,
+  imgW: 0.085,
   gap: 0.020,
   holdMs: 2200,
   fadeMs: 900
