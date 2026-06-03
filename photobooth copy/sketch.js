@@ -25,7 +25,7 @@ let hitboxEditTarget = "startBtnHit";
 let startBtnHitCtrl = { x: 0.501, y: 0.856, w: 0.109, h: 0.0785 };
 
 let previewCaptureHitCtrl = { x: 0.622, y: 0.538, w: 0.102, h: 0.070 };
-let previewReturnHitCtrl = { x: 0.300, y: 0.155, w: 0.032, h: 0.06 };
+let previewReturnHitCtrl = { x: 0.280, y: 0.155, w: 0.032, h: 0.06 };
 
 let selectRetakeHitCtrl = { x: 0.572, y: 0.876, w: 0.094, h: 0.066 };
 let selectOkHitCtrl = { x: 0.698, y: 0.88, w: 0.044, h: 0.076 };
@@ -66,7 +66,7 @@ let isUploadingPhoto = false;
 let uploadError = "";
 
 let selectFrameCtrl = {
-  x: 0.37,
+  x: 0.315,
   y: 0.5,
   maxW: 0.4,
   maxH: 0.84
@@ -99,7 +99,7 @@ let countdownAlpha = 255;
 let lastCountdownText = "";
 
 let previewFrameCtrl = {
-  x: 0.44,
+  x: 0.42,
   y: 0.51,
   maxW: 0.720,
   maxH: 0.800
@@ -113,7 +113,7 @@ let previewCaptureCtrl = {
 };
 
 let previewReturnCtrl = {
-  x: 0.300,
+  x: 0.280,
   y: 0.155,
   maxW: 0.15,
   maxH: 0.07
