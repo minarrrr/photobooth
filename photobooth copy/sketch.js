@@ -6,7 +6,7 @@ let resultSound;
 let timelapseClips = [];
 let currentTimelapseFrames = [];
 let lastTimelapseFrameAt = 0;
-let timelapseFrameEveryMs = 600;
+let timelapseFrameEveryMs = 250;
 let resultTimelapseFrameIndex = 0;
 let resultTimelapseLastMs = 0;
 let resultTimelapseSpeedMs = 160;
@@ -245,8 +245,8 @@ const PERFORMANCE_PROFILE = LOW_POWER_DEVICE
       hoverPollMs: 120
     }
   : {
-      uiFrameRate: 24,
-      captureFrameRate: 24,
+      uiFrameRate: 30,
+      captureFrameRate: 30,
       camW: 480,
       camH: 360,
       enableShadows: true,
@@ -980,7 +980,7 @@ function recordTimelapseFrame() {
   if (millis() - lastTimelapseFrameAt < timelapseFrameEveryMs) return;
 
   let slotRatio = 510 / 341;
-  let frameW = 90;
+  let frameW = 180;
   let frameH = frameW / slotRatio;
   let g = createGraphics(frameW, frameH);
 
@@ -1168,7 +1168,7 @@ function isInsideCorner(mx, my, box) {
   );
 }
 
-function keyPressed() {
+/*function keyPressed() {
   let moveStep = 0.002;
 let sizeStep = 0.002;
 
@@ -1272,7 +1272,7 @@ let sizeStep = 0.002;
   if (key === ".") target.h += sizeStep;
 }
 
-function drawMirroredVideoCoverToCanvas(v, x, y, w, h) {
+*/function drawMirroredVideoCoverToCanvas(v, x, y, w, h) {
   let vw = v.width || 1;
   let vh = v.height || 1;
 
