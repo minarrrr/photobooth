@@ -228,15 +228,44 @@ let iconButtons = [];
 
 let cam;
 
+const LOW_POWER_DEVICE =
+  typeof navigator !== "undefined" &&
+  /arm|aarch64|raspberry|linux arm/i.test(
+    (navigator.userAgent || "") + " " + (navigator.platform || "")
+  );
+
+const PERFORMANCE_PROFILE = LOW_POWER_DEVICE
+  ? {
+      uiFrameRate: 16,
+      captureFrameRate: 20,
+      camW: 320,
+      camH: 240,
+      enableShadows: false,
+      smoothing: false,
+      hoverPollMs: 120
+    }
+  : {
+      uiFrameRate: 24,
+      captureFrameRate: 24,
+      camW: 480,
+      camH: 360,
+      enableShadows: true,
+      smoothing: true,
+      hoverPollMs: 50
+    };
+
+let currentFrameRateTarget = -1;
+let lastHoverCheckAt = 0;
+
 function loadAssets() {
   
   startTitleImg = loadImage("assets/titles/start.png");
 selectTitleImg = loadImage("assets/titles/select.png");
   
-reelImgs.push(loadImage("assets/reel/reel1.png"));
-reelImgs.push(loadImage("assets/reel/reel2.png"));
-reelImgs.push(loadImage("assets/reel/reel3.png"));
-reelImgs.push(loadImage("assets/reel/reel4.png"));
+reelImgs.push(loadImage("assets/reel/reel1.jpg"));
+reelImgs.push(loadImage("assets/reel/reel2.jpg"));
+reelImgs.push(loadImage("assets/reel/reel3.jpg"));
+reelImgs.push(loadImage("assets/reel/reel4.jpg"));
   
   returnBtnImg = loadImage("assets/ui/btn_return.png");
   
@@ -261,9 +290,9 @@ okBtnImg = loadImage("assets/ui/btn_ok.png");
 function setup() {
   pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
-  frameRate(24);
-  drawingContext.imageSmoothingEnabled = true;
-  drawingContext.imageSmoothingQuality = "high";
+  frameRate(PERFORMANCE_PROFILE.uiFrameRate);
+  drawingContext.imageSmoothingEnabled = PERFORMANCE_PROFILE.smoothing;
+  drawingContext.imageSmoothingQuality = PERFORMANCE_PROFILE.smoothing ? "high" : "low";
   imageMode(CENTER);
 
   let loadingEl = document.getElementById("p5_loading");
@@ -272,7 +301,7 @@ function setup() {
   loadAssets();
 
   cam = createCapture(VIDEO);
-  cam.size(480, 360);
+  cam.size(PERFORMANCE_PROFILE.camW, PERFORMANCE_PROFILE.camH);
   cam.hide();
   
   qrBox = createDiv("");
@@ -280,55 +309,47 @@ qrBox.style("position", "absolute");
 qrBox.hide();
   
 resultSound = loadSound("assets/audio/result.mp3", function() {
-  resultSound.setVolume(1.0);
+  resultSound.setVolume(2.0);
 });
 
 
 hoverSound = loadSound("assets/audio/hover.mp3", function() {
   hoverSound.playMode("restart");
-  hoverSound.setVolume(1.5);
+  hoverSound.setVolume(2.0);
 });
 
 buttonSound = loadSound("assets/audio/buttonsound.mp3", function() {
   buttonSound.playMode("restart");
-  buttonSound.setVolume(1.5);
+  buttonSound.setVolume(2.0);
 });
 
 countdownSound = loadSound("assets/audio/countdown.mp3", function() {
-  countdownSound.setVolume(0.5);
+  countdownSound.setVolume(2.0);
 });
 
 shutterSound = loadSound("assets/audio/shutter.mp3", function() {
-  shutterSound.setVolume(1.5);
+  shutterSound.setVolume(2.0);
 });
 }
 
 function draw() {
+  updateScreenFrameRate();
+
   background(255);
 
   if (screen === "start") {
     drawStartScreen();
-  }
-
-  if (screen === "snack") {
+  } else if (screen === "snack") {
     drawSnackScreen();
-  }
-
-  if (screen === "preview") {
+  } else if (screen === "preview") {
     drawPreviewScreen();
-  }
-
-  if (screen === "capture") {
+  } else if (screen === "capture") {
     drawCaptureScreen();
+  } else if (screen === "select") {
+    drawSelectScreen();
+  } else if (screen === "result") {
+    drawResultScreen();
   }
-  
-  if (screen === "select") {
-  drawSelectScreen();
-}
-
-if (screen === "result") {
-  drawResultScreen();
-}
   
   if (flashAlpha > 0) {
   noStroke();
@@ -342,12 +363,24 @@ if (showGrid) {
 drawGridGuides();
 }
   
-if (qrBox && screen !== "result") {
-  qrBox.hide();
-}
-  
+  if (qrBox && screen !== "result") {
+    qrBox.hide();
+  }
+
   updateHoverSound();
   
+}
+
+function updateScreenFrameRate() {
+  let target =
+    screen === "capture"
+      ? PERFORMANCE_PROFILE.captureFrameRate
+      : PERFORMANCE_PROFILE.uiFrameRate;
+
+  if (target !== currentFrameRateTarget) {
+    frameRate(target);
+    currentFrameRateTarget = target;
+  }
 }
 
 function drawStartScreen() {
@@ -454,13 +487,13 @@ if (selectedFrame) {
 
   push();
 
-  if (selectedFrame === frame2) {
+  if (PERFORMANCE_PROFILE.enableShadows && selectedFrame === frame2) {
 
  drawingContext.shadowColor = "rgba(0,0,0,0.025)";
 drawingContext.shadowBlur = 20;
 drawingContext.shadowOffsetX = 0;
 drawingContext.shadowOffsetY = 1;
-  } else {
+  } else if (PERFORMANCE_PROFILE.enableShadows) {
     drawingContext.shadowColor = "rgba(0,0,0,0.10)";
     drawingContext.shadowBlur = 15;
     drawingContext.shadowOffsetX = 0;
@@ -502,7 +535,7 @@ function drawIconButton(img, frameImg, x, y, ctrl, index) {
 
   push();
 
-  if (hovering) {
+  if (PERFORMANCE_PROFILE.enableShadows && hovering) {
     drawingContext.shadowColor = "rgba(0,0,0,0.18)";
     drawingContext.shadowBlur = 14;
     drawingContext.shadowOffsetX = 0;
@@ -556,9 +589,9 @@ function clickedAnyButton() {
     if (isInsideCorner(mouseX, mouseY, photoButtons[i])) {
       let photoIndex = photoButtons[i].index;
 
-      if (!selectedPhotos.includes(photoIndex) && selectedPhotos.length < 4) {
-        return true;
-      }
+      if (!selectedPhotos.includes(photoIndex) && selectedPhotoCount() < 4) {
+  return true;
+}
     }
   }
 
@@ -609,7 +642,7 @@ function mousePressed() {
     let slotIndex = frameSlots[i].slot;
 
     if (selectedPhotos[slotIndex] !== undefined) {
-      selectedPhotos.splice(slotIndex, 1);
+      selectedPhotos[slotIndex] = undefined;
     }
 
     return;
@@ -620,9 +653,15 @@ function mousePressed() {
     if (isInsideCorner(mouseX, mouseY, photoButtons[i])) {
       let photoIndex = photoButtons[i].index;
 
-      if (!selectedPhotos.includes(photoIndex) && selectedPhotos.length < 4) {
-        selectedPhotos.push(photoIndex);
-      }
+      if (!selectedPhotos.includes(photoIndex) && selectedPhotoCount() < 4) {
+  let emptySlot = selectedPhotos.indexOf(undefined);
+
+  if (emptySlot === -1) {
+    selectedPhotos.push(photoIndex);
+  } else {
+    selectedPhotos[emptySlot] = photoIndex;
+  }
+}
 
       return;
     }
@@ -635,7 +674,7 @@ function mousePressed() {
   }
 
   if (isInside(mouseX, mouseY, okBtn)) {
-  if (selectedPhotos.length === 4) {
+ if (selectedPhotoCount() === 4) {
     buildFinalFrame();
 screen = "result";
 resultStartedAtMs = millis();
@@ -651,6 +690,18 @@ uploadFinalPhoto();
   return;
 }
 }
+}
+
+function selectedPhotoCount() {
+  let count = 0;
+
+  for (let i = 0; i < selectedPhotos.length; i++) {
+    if (selectedPhotos[i] !== undefined) {
+      count++;
+    }
+  }
+
+  return count;
 }
 
 function resetToStartScreen() {
@@ -743,7 +794,7 @@ function drawAnimatedButton(img, visualCtrl, hitCtrl) {
 
   push();
 
-  if (hovering) {
+  if (PERFORMANCE_PROFILE.enableShadows && hovering) {
     drawingContext.shadowColor = "rgba(0,0,0,0.18)";
     drawingContext.shadowBlur = 14;
     drawingContext.shadowOffsetX = 0;
@@ -821,7 +872,7 @@ let camY = height / 2 - camH / 2;
   rect(width / 2, height / 2, camW, camH);
 
   if (isCapturing) {
-  // recordTimelapseFrame();
+  recordTimelapseFrame();
   updateCountdown();
   drawCountdownText();
 }
@@ -1041,12 +1092,12 @@ for (let i = 0; i < 4; i++) {
   if (selectedFrame) {
   push();
 
-  if (selectedFrame === frame2) {
+  if (PERFORMANCE_PROFILE.enableShadows && selectedFrame === frame2) {
     drawingContext.shadowColor = "rgba(0,0,0,0.025)";
     drawingContext.shadowBlur = 20;
     drawingContext.shadowOffsetX = 0;
     drawingContext.shadowOffsetY = 1;
-  } else {
+  } else if (PERFORMANCE_PROFILE.enableShadows) {
     drawingContext.shadowColor = "rgba(0,0,0,0.10)";
     drawingContext.shadowBlur = 15;
     drawingContext.shadowOffsetX = 0;
@@ -1733,6 +1784,15 @@ function playResultSound() {
 }
 
 function updateHoverSound() {
+  if (screen === "capture") {
+    lastHoveredButton = "";
+    return;
+  }
+
+  let now = millis();
+  if (now - lastHoverCheckAt < PERFORMANCE_PROFILE.hoverPollMs) return;
+  lastHoverCheckAt = now;
+
   let hoveredButton = getHoveredButton();
 
   if (hoveredButton !== "" && hoveredButton !== lastHoveredButton) {
