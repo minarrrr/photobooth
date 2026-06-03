@@ -309,26 +309,26 @@ qrBox.style("position", "absolute");
 qrBox.hide();
   
 resultSound = loadSound("assets/audio/result.mp3", function() {
-  resultSound.setVolume(3.5);
+  resultSound.setVolume(2);
 });
 
 
 hoverSound = loadSound("assets/audio/hover.mp3", function() {
   hoverSound.playMode("restart");
-  hoverSound.setVolume(3.5);
+  hoverSound.setVolume(2);
 });
 
 buttonSound = loadSound("assets/audio/buttonsound.mp3", function() {
   buttonSound.playMode("restart");
-  buttonSound.setVolume(3.5);
+  buttonSound.setVolume(2);
 });
 
 countdownSound = loadSound("assets/audio/countdown.mp3", function() {
-  countdownSound.setVolume(4);
+  countdownSound.setVolume(2);
 });
 
 shutterSound = loadSound("assets/audio/shutter.mp3", function() {
-  shutterSound.setVolume(3.5);
+  shutterSound.setVolume(2);
 });
 }
 
