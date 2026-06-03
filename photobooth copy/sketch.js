@@ -14,6 +14,9 @@ let resultTimelapseSpeedMs = 160;
 const RESULT_DURATION_MS = 180000;
 let resultStartedAtMs = 0;
 
+const IDLE_RETURN_MS = 180000;
+let idleReturnStartedAtMs = 0;
+
 let hoverSound;
 let lastHoveredButton = "";
 
@@ -262,10 +265,14 @@ function loadAssets() {
   startTitleImg = loadImage("assets/titles/start.png");
 selectTitleImg = loadImage("assets/titles/select.png");
   
-reelImgs.push(loadImage("assets/reel/reel1.jpg"));
-reelImgs.push(loadImage("assets/reel/reel2.jpg"));
-reelImgs.push(loadImage("assets/reel/reel3.jpg"));
-reelImgs.push(loadImage("assets/reel/reel4.jpg"));
+reelImgs.push(loadImage("assets/reel/reel1.png"));
+reelImgs.push(loadImage("assets/reel/reel2.png"));
+reelImgs.push(loadImage("assets/reel/reel3.png"));
+reelImgs.push(loadImage("assets/reel/reel4.png"));
+reelImgs.push(loadImage("assets/reel/reel5.png"));
+reelImgs.push(loadImage("assets/reel/reel6.png"));
+reelImgs.push(loadImage("assets/reel/reel7.png"));
+reelImgs.push(loadImage("assets/reel/reel8.png"));
   
   returnBtnImg = loadImage("assets/ui/btn_return.png");
   
@@ -288,7 +295,6 @@ okBtnImg = loadImage("assets/ui/btn_ok.png");
 }
 
 function setup() {
-  pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
   frameRate(PERFORMANCE_PROFILE.uiFrameRate);
   drawingContext.imageSmoothingEnabled = PERFORMANCE_PROFILE.smoothing;
@@ -334,6 +340,8 @@ shutterSound = loadSound("assets/audio/shutter.mp3", function() {
 
 function draw() {
   updateScreenFrameRate();
+
+  updateIdleReturnTimer();
 
   background(255);
 
@@ -381,6 +389,32 @@ function updateScreenFrameRate() {
     frameRate(target);
     currentFrameRateTarget = target;
   }
+}
+
+function setScreen(nextScreen) {
+  screen = nextScreen;
+
+  if (screen === "snack" || screen === "preview" || screen === "select") {
+    idleReturnStartedAtMs = millis();
+  } else {
+    idleReturnStartedAtMs = 0;
+  }
+}
+
+function updateIdleReturnTimer() {
+  if (screen !== "snack" && screen !== "preview" && screen !== "select") return;
+
+  if (idleReturnStartedAtMs === 0) {
+    idleReturnStartedAtMs = millis();
+  }
+
+  if (millis() - idleReturnStartedAtMs >= IDLE_RETURN_MS) {
+    resetToStartScreen();
+  }
+}
+
+function getIdleReturnRemainingMs() {
+  return max(0, IDLE_RETURN_MS - (millis() - idleReturnStartedAtMs));
 }
 
 function drawStartScreen() {
@@ -596,10 +630,12 @@ function clickedAnyButton() {
   }
 
   return (
-    isInside(mouseX, mouseY, retakeBtn) ||
-    isInside(mouseX, mouseY, okBtn)
-  );
+  isInside(mouseX, mouseY, resultHomeBtn) ||
+  isInside(mouseX, mouseY, retakeBtn) ||
+  isInside(mouseX, mouseY, okBtn)
+);
 }
+
 
   if (screen === "result") {
   return isInside(mouseX, mouseY, resultHomeBtn);
@@ -616,27 +652,31 @@ function mousePressed() {
   if (screen === "start") {
     if (isInside(mouseX, mouseY, startBtn)) {
       editTarget = "snackTitle";
-      screen = "snack";
+      setScreen("snack");
     }
   } else if (screen === "snack") {
     for (let i = 0; i < iconButtons.length; i++) {
       if (isInside(mouseX, mouseY, iconButtons[i])) {
         selectedFrame = iconButtons[i].frame;
-        screen = "preview";
+        setScreen("preview");
       }
     }
   } else if (screen === "preview") {
     if (isInside(mouseX, mouseY, homeBtn)) {
-  screen = "snack";
+  setScreen("snack");
 }
 
     if (isInside(mouseX, mouseY, captureBtn)) {
   userStartAudio();
-  screen = "capture";
+  setScreen("capture");
   startPhotoSequence();
 }
   }
   else if (screen === "select") {
+    if (isInside(mouseX, mouseY, resultHomeBtn)) {
+  resetToStartScreen();
+  return;
+}
   for (let i = 0; i < frameSlots.length; i++) {
   if (isInsideCorner(mouseX, mouseY, frameSlots[i])) {
     let slotIndex = frameSlots[i].slot;
@@ -668,7 +708,7 @@ function mousePressed() {
   }
 
   if (isInside(mouseX, mouseY, retakeBtn)) {
-    screen = "capture";
+    setScreen("capture");
     startPhotoSequence();
     return;
   }
@@ -676,7 +716,7 @@ function mousePressed() {
   if (isInside(mouseX, mouseY, okBtn)) {
  if (selectedPhotoCount() === 4) {
     buildFinalFrame();
-screen = "result";
+setScreen("result");
 resultStartedAtMs = millis();
 playResultSound();
 uploadFinalPhoto();
@@ -715,6 +755,7 @@ function resetToStartScreen() {
   timelapseClips = [];
   currentTimelapseFrames = [];
   resultStartedAtMs = 0;
+  idleReturnStartedAtMs = 0;
 
   if (qrBox) {
     qrBox.html("");
@@ -949,7 +990,7 @@ function updateCountdown() {
       }
 
       selectedPhotos = [];
-      screen = "select";
+      setScreen("select");
     } else {
       scheduleNextShot();
     }
@@ -1157,6 +1198,9 @@ let thumbW = width * selectGridCtrl.thumbW;
 
   okBtn = drawAnimatedButton(okBtnImg, selectOkCtrl, selectOkHitCtrl);
 
+  resultHomeBtn = drawAnimatedButton(homeBtnImg, resultHomeCtrl, resultHomeHitCtrl);
+drawResultTimer(getIdleReturnRemainingMs());
+
 }
 
 function isInsideCorner(mx, my, box) {
@@ -1272,7 +1316,9 @@ let sizeStep = 0.002;
   if (key === ".") target.h += sizeStep;
 }
 
-*/function drawMirroredVideoCoverToCanvas(v, x, y, w, h) {
+*/
+
+function drawMirroredVideoCoverToCanvas(v, x, y, w, h) {
   let vw = v.width || 1;
   let vh = v.height || 1;
 
@@ -1499,6 +1545,24 @@ function getFrameHoles(frameW, frameH) {
 }
 
 function drawStartReel() {
+  let cycleMs = startReelCtrl.holdMs + startReelCtrl.fadeMs;
+  let cyclePos = millis() % (cycleMs * 2);
+
+  let groupA = cyclePos < cycleMs ? 0 : 1;
+  let groupB = groupA === 0 ? 1 : 0;
+
+  let localTime = cyclePos % cycleMs;
+  let fadeT = constrain((localTime - startReelCtrl.holdMs) / startReelCtrl.fadeMs, 0, 1);
+
+  fadeT = fadeT * fadeT * (3 - 2 * fadeT);
+
+  drawReelGroup(groupA, 255 * (1 - fadeT));
+  drawReelGroup(groupB, 255 * fadeT);
+}
+
+function drawReelGroup(group, alphaValue) {
+  let startIndex = group * 4;
+
   let imgW = width * startReelCtrl.imgW;
   let gap = width * startReelCtrl.gap;
   let totalW = 4 * imgW + 3 * gap;
@@ -1506,21 +1570,24 @@ function drawStartReel() {
   let y = height * startReelCtrl.y;
 
   for (let i = 0; i < 4; i++) {
-    let img = reelImgs[i];
+    let img = reelImgs[startIndex + i];
+    if (!img) return;
+
     let imgH = imgW * (img.height / img.width);
     let x = startX + i * (imgW + gap) + imgW / 2;
 
-    image(img, x, y, imgW, imgH);
+    push();
+    tint(255, alphaValue);
 
-if (i === 1) {
-  push();
-  noFill();
-  stroke(60);
-  strokeWeight(0.5);
-  rectMode(CENTER);
-  rect(x, y, imgW - 1, imgH - 1);
-  pop();
-}
+    if (PERFORMANCE_PROFILE.enableShadows) {
+      drawingContext.shadowColor = "rgba(0,0,0,0.10)";
+      drawingContext.shadowBlur = 12;
+      drawingContext.shadowOffsetX = 0;
+      drawingContext.shadowOffsetY = 4;
+    }
+
+    image(img, x, y, imgW, imgH);
+    pop();
   }
 }
 
@@ -1829,6 +1896,7 @@ function getHoveredButton() {
   }
 
   if (screen === "select") {
+  if (isInside(mouseX, mouseY, resultHomeBtn)) return "selectHomeBtn";
   if (isInside(mouseX, mouseY, retakeBtn)) return "retakeBtn";
   if (isInside(mouseX, mouseY, okBtn)) return "okBtn";
 }
