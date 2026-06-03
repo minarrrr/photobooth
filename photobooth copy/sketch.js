@@ -6,7 +6,7 @@ let resultSound;
 let timelapseClips = [];
 let currentTimelapseFrames = [];
 let lastTimelapseFrameAt = 0;
-let timelapseFrameEveryMs = 250;
+let timelapseFrameEveryMs = 600;
 let resultTimelapseFrameIndex = 0;
 let resultTimelapseLastMs = 0;
 let resultTimelapseSpeedMs = 160;
@@ -261,7 +261,7 @@ okBtnImg = loadImage("assets/ui/btn_ok.png");
 function setup() {
   pixelDensity(1);
   createCanvas(windowWidth, windowHeight);
-  frameRate(30);
+  frameRate(24);
   drawingContext.imageSmoothingEnabled = true;
   drawingContext.imageSmoothingQuality = "high";
   imageMode(CENTER);
@@ -280,26 +280,26 @@ qrBox.style("position", "absolute");
 qrBox.hide();
   
 resultSound = loadSound("assets/audio/result.mp3", function() {
-  resultSound.setVolume(2.0);
+  resultSound.setVolume(1.0);
 });
 
 
 hoverSound = loadSound("assets/audio/hover.mp3", function() {
   hoverSound.playMode("restart");
-  hoverSound.setVolume(2.0);
+  hoverSound.setVolume(1.5);
 });
 
 buttonSound = loadSound("assets/audio/buttonsound.mp3", function() {
   buttonSound.playMode("restart");
-  buttonSound.setVolume(2.0);
+  buttonSound.setVolume(1.5);
 });
 
 countdownSound = loadSound("assets/audio/countdown.mp3", function() {
-  countdownSound.setVolume(2.0);
+  countdownSound.setVolume(0.5);
 });
 
 shutterSound = loadSound("assets/audio/shutter.mp3", function() {
-  shutterSound.setVolume(2.0);
+  shutterSound.setVolume(1.5);
 });
 }
 
@@ -821,7 +821,7 @@ let camY = height / 2 - camH / 2;
   rect(width / 2, height / 2, camW, camH);
 
   if (isCapturing) {
-  recordTimelapseFrame();
+  // recordTimelapseFrame();
   updateCountdown();
   drawCountdownText();
 }
@@ -929,7 +929,7 @@ function recordTimelapseFrame() {
   if (millis() - lastTimelapseFrameAt < timelapseFrameEveryMs) return;
 
   let slotRatio = 510 / 341;
-  let frameW = 180;
+  let frameW = 90;
   let frameH = frameW / slotRatio;
   let g = createGraphics(frameW, frameH);
 
